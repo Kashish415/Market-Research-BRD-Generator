@@ -2,7 +2,8 @@
 
 ##### Input --> Startup idea
 
-![1794758319484](image/README/1794758319484.png)
+<img width="685" height="363" alt="image" src="https://github.com/user-attachments/assets/ee60972c-d0e6-4d7a-9dfc-79ea48af91c2" />
+
 
 ## 5 agents:
 

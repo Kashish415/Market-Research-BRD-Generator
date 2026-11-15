@@ -1,0 +1,28 @@
+[project]
+name = "market_research_agent"
+version = "0.1.0"
+description = "market_research_agent using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai-tools>=1.15.33",
+    "crewai[google-genai,tools]>=1.15.30,<2.0.0",
+    "selenium>=4.52.0",
+    "webdriver-manager>=4.1.2",
+]
+
+[project.scripts]
+market_research_agent = "market_research_agent.main:run"
+run_crew = "market_research_agent.main:run"
+train = "market_research_agent.main:train"
+replay = "market_research_agent.main:replay"
+test = "market_research_agent.main:test"
+run_with_trigger = "market_research_agent.main:run_with_trigger"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
+project_id = "9b9ee894-a944-448f-bcf9-819162a9c1e7"

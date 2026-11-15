@@ -2,7 +2,7 @@
 
 ##### Input --> Startup idea
 
-![1794758176571](image/README/1794758176571.png)
+![1794758319484](image/README/1794758319484.png)
 
 ## 5 agents:
 

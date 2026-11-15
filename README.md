@@ -2,8 +2,11 @@
 
 ##### Input --> Startup idea
 
-## 5 agents:  
-1. Market research specialist agent 
+![1794758176571](image/README/1794758176571.png)
+
+## 5 agents:
+
+1. Market research specialist agent
 2. Competitors study agent
 3. Customer research agent
 4. Product features designing agent
@@ -15,4 +18,4 @@
 2. Assemble both inside crew.py file. (config paths, agents, tasks, crew, tools)
 3. Kickoff crew in main.py
 4. check .env file for model name and api keys
-5. Run in CLI: crewai run 
+5. Run in CLI: crewai run

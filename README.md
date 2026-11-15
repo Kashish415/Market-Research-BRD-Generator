@@ -13,6 +13,9 @@
 4. Product features designing agent
 5. Business Analyst (takes reports from all 4 agents and compile one final report)
 
+<img width="603" height="449" alt="image" src="https://github.com/user-attachments/assets/80e3d2ff-d8f9-49e5-9d75-af79d779251f" />
+
+
 ## Tasks:
 
 1. Define agents.yaml (ROLE, GOAL, BACKSTORY) and tasks.yaml (DESC, EXPECTED OUTPUT, AGENT(optional))

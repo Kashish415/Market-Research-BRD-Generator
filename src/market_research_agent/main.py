@@ -7,6 +7,7 @@ def run():
     # product_idea came from placeholder in tasks.yaml file
 
     result = MarketResearchAgent().crew().kickoff(inputs=inputs)
-    print(result)
+
+    return result
 
 

@@ -1,8 +1,10 @@
 # Market Research Agent Crew
 
 ##### Input --> Startup idea
+A multi-agent AI platform that helps founders and product teams evaluate business ideas through automated market research, competitor intelligence, customer analysis and structured business documentation.
 
-![1794758319484](image/README/1794758319484.png)
+<img width="685" height="363" alt="image" src="https://github.com/user-attachments/assets/ee60972c-d0e6-4d7a-9dfc-79ea48af91c2" />
+
 
 ## 5 agents:
 
@@ -11,6 +13,9 @@
 3. Customer research agent
 4. Product features designing agent
 5. Business Analyst (takes reports from all 4 agents and compile one final report)
+
+<img width="603" height="449" alt="image" src="https://github.com/user-attachments/assets/80e3d2ff-d8f9-49e5-9d75-af79d779251f" />
+
 
 ## Tasks:
 

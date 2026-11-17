@@ -1,13 +1,20 @@
-from crewai import Agent, Crew, Process, Task
+import os
+from typing import List
+from crewai import Agent, Crew, LLM, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
 
 # toolS for web search capability and scraping!
 from crewai_tools import SerperDevTool, ScrapeWebsiteTool, SeleniumScrapingTool 
 
 from dotenv import load_dotenv
 load_dotenv()
+
+llm = LLM(
+    model=f"openai/{os.environ['MODEL']}",
+    custom_openai=True,
+    api_key=os.environ["GROQ_API_KEY"],
+)
 
 # create the tools for the agents
 web_search_tool = SerperDevTool()
@@ -32,14 +39,16 @@ class MarketResearchAgent():
     def market_research_specialist(self) -> Agent:
         return Agent(
             config = self.agents_config['market_research_specialist'],
-            tools= toolkit
+            tools= toolkit,
+            llm=llm
         )
 
     @agent
     def competitive_intelligence_analyst(self) -> Agent:
             return Agent(
                 config = self.agents_config['competitive_intelligence_analyst'],
-                tools= toolkit
+                tools= toolkit,
+                llm=llm
             )
 
 
@@ -47,15 +56,16 @@ class MarketResearchAgent():
     def customer_insights_researcher(self) -> Agent:
             return Agent(
                 config = self.agents_config['customer_insights_researcher'],
-                tools= toolkit
+                tools= toolkit,
+                llm=llm
             )
 
 
     @agent
-    def product_strategy_advisor(self) -> Agent:
+    def business_requirements_analyst(self) -> Agent:
             return Agent(
-                config = self.agents_config['product_strategy_advisor'],
-                tools= toolkit
+                config = self.agents_config['business_requirements_analyst'],
+                llm= llm
             )
 
 
@@ -63,7 +73,7 @@ class MarketResearchAgent():
     def business_analyst(self) -> Agent:
             return Agent(
                 config = self.agents_config['business_analyst'],
-                tools= toolkit
+                llm= llm
             )
 
     # 4. define your tasks (maintaining the order)
@@ -71,29 +81,25 @@ class MarketResearchAgent():
     @task
     def market_research_task(self) -> Task:
            return Task(
-                  config=self.tasks_config["market_research_task"],
-                  tools= toolkit
+                  config=self.tasks_config["market_research_task"]
            )
 
     @task
     def competitive_intelligence_task(self) -> Task:
                return Task(
-                      config=self.tasks_config["competitive_intelligence_task"],
-                      context=[self.market_research_task()]    # pass in a list the whole context
+                      config=self.tasks_config["competitive_intelligence_task"]  
                )
 
     @task
     def customer_insights_task(self) -> Task:
                return Task(
-                      config=self.tasks_config["customer_insights_task"],
-                      context= [self.market_research_task(),
-                                self.competitive_intelligence_task()]
+                      config=self.tasks_config["customer_insights_task"]
                )
 
     @task
-    def product_strategy_task(self) -> Task:
+    def business_requirements_task(self) -> Task:
                return Task(
-                      config=self.tasks_config["product_strategy_task"],
+                      config=self.tasks_config["business_requirements_task"],
                       context=[self.market_research_task(),
                               self.competitive_intelligence_task(),
                               self.customer_insights_task()]
@@ -106,10 +112,10 @@ class MarketResearchAgent():
                       context= [self.market_research_task(),
                                 self.competitive_intelligence_task(),
                                 self.customer_insights_task(),
-                                self.product_strategy_task()]
+                                self.business_requirements_task()]
                )
 
-    # 5. Form your Crew
+    # 5. Form the Crew
 
     @crew
     def crew(self) -> Crew:

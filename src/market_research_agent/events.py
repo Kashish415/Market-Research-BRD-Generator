@@ -1,4 +1,4 @@
-# This file helps in listening to CrewAI's task and tool execution events and puts them into a queue, which Chainlit will read to display each agent's live execution.
+# This file helps in listening to CrewAI's task and tool execution events and puts them into a queue, which Chainlit will read to display each agent's live execution. We want to show the individual agents and tools working in the UI, so we need this event listener. Its job is to collect events, not display them. Chainlit will handle the display.
 
 from queue import Queue
 

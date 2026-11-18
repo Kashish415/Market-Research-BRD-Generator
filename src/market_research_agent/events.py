@@ -1,3 +1,5 @@
+# This file helps in listening to CrewAI's task and tool execution events and puts them into a queue, which Chainlit will read to display each agent's live execution.
+
 from queue import Queue
 
 from crewai.events import (
@@ -19,7 +21,7 @@ class CrewEventListener(BaseEventListener):
         # Task events
         @event_bus.on(TaskStartedEvent)
         def on_task_started(source, event):
-            event_queue.put({
+            event_queue.put({          # Every time an event occurs, we put its details into this event_queue.
                 "type": "task_started",
                 "agent": event.task.agent.role,
             })

@@ -120,8 +120,7 @@ class MarketResearchAgent():
                     tasks= self.tasks,
                     process = Process.sequential,
                     tracing = True,
-                    stream = True
-                    
+                    stream = True   
             )
     
 

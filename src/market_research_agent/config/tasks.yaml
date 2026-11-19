@@ -1,50 +1,76 @@
 market_research_task:
   description: >
-    Conduct market research for the following business idea:
+    Conduct focused market research for the following business idea:
 
     Project Brief: {project_brief}
 
     Additional Context: {additional_context}
 
-    Analyse the relevant market, including:
+    Analyse the relevant market in the following areas:
 
     1. Market Size and Growth:
-       - TAM, SAM, and SOM where reliable data is available.
-       - Market growth and relevant forecasts.
-       - Market maturity and major growth drivers.
+       - Identify the market directly relevant to the business idea.
+       - Report TAM, SAM and SOM only when reliable data and a
+         defensible calculation method are available.
+       - Include market size, growth rates and forecasts where
+         supported by credible sources.
+       - Do not use the size of a broad parent industry as the
+         addressable market for the proposed product.
 
     2. Industry Trends:
-       - Important industry developments.
-       - Technology adoption and emerging trends.
-       - Relevant opportunities and threats.
+       - Identify important market and technology developments.
+       - Highlight relevant opportunities, risks and adoption trends.
 
     3. Regulatory Landscape:
-       - Applicable regulations and compliance considerations.
-       - Data privacy and security considerations where relevant.
+       - Identify potentially relevant privacy, security and
+         industry regulations.
+       - Consider the specified target geography.
+       - If no target geography is provided, identify areas
+         requiring legal review without claiming that a particular
+         regulation definitely applies.
 
     4. Market Opportunities:
-       - Emerging customer needs.
-       - Underserved market segments.
-       - Factors affecting market adoption.
+       - Identify underserved segments and unmet market needs.
+       - Distinguish evidence-backed opportunities from hypotheses.
 
-    Use credible and recent sources. Include source URLs and
-    publication dates wherever available.
+    Evidence and reporting rules:
 
-    Do not invent market figures or present unsupported estimates
-    as facts. Clearly state assumptions and data limitations.
-    
+    - Use only information actually obtained from the available
+      research sources.
+    - Include the exact source URL for every important market
+      figure or factual research claim.
+    - Include publication dates wherever available.
+    - Clearly label verified findings, estimates and hypotheses.
+    - Explain the methodology behind any calculated estimate.
+    - If reliable information is unavailable, explicitly state
+      that the information could not be verified.
+    - Never invent market sizes, growth rates, forecasts or
+      regulatory requirements.
+    - Do not present an analyst estimate as an established fact.
+
     Research limits:
 
-    - Perform at most two focused searches using Exa.
-    - Fetch at most one relevant webpage using Exa when necessary.
-    - Prefer reliable and recent primary sources.
-    - Include no more than two relevant source references.
+    - Perform at most two focused Exa searches.
+    - Fetch at most one relevant webpage when necessary.
+    - Prefer primary and credible sources.
+    - Include no more than two source references.
+    - Do not repeat searches to find confirmation for an already
+      supported finding.
 
   expected_output: >
-    A concise market research report of approximately 250-300 words
-    covering market overview, available market sizing, industry trends,
-    relevant regulations, opportunities, risks, and up to two
-    source references.
+    A market research report of approximately 250-350 words.
+
+    Include:
+    - Relevant market overview and available sizing.
+    - Important industry trends.
+    - Relevant regulatory considerations.
+    - Market opportunities and risks.
+    - Verified findings, estimates and hypotheses clearly labelled.
+    - Up to two source references with exact URLs and dates
+      wherever available.
+
+    Do not include unsupported market figures or generic industry
+    descriptions unrelated to the proposed business.
 
   markdown: true
   async_execution: true
@@ -53,53 +79,76 @@ market_research_task:
 
 competitive_intelligence_task:
   description: >
-    Conduct competitive intelligence research for the following
-    business idea:
+    Conduct focused competitive intelligence research for the
+    following business idea:
 
     Project Brief: {project_brief}
 
     Additional Context: {additional_context}
 
-    Analyse the competitive landscape, including:
+    Analyse the competitive landscape in the following areas:
 
     1. Competitor Identification:
-       - Relevant direct competitors.
-       - Indirect competitors and alternative solutions.
-       - Emerging products where credible information is available.
+       - Identify relevant direct competitors.
+       - Identify important indirect competitors and alternatives.
+       - Focus on products serving similar customers or solving
+         similar problems.
 
     2. Competitor Comparison:
        - Company and product overview.
        - Core features and capabilities.
-       - Target customers.
-       - Publicly available pricing.
+       - Target customer segments.
+       - Publicly available pricing and pricing model.
        - Product positioning and differentiation.
-       - Strengths and limitations.
+       - Verified strengths and limitations.
 
     3. Competitive Gaps:
-       - Features or needs not adequately addressed.
-       - Underserved customer segments.
-       - Potential areas of differentiation.
-       - Competitive threats and barriers to entry.
+       - Identify customer needs that appear underserved.
+       - Identify potential areas of differentiation.
+       - Highlight competitive threats and barriers to entry.
 
-    Use competitor websites, product documentation, customer
-    reviews, and other credible public sources.
+    Evidence and reporting rules:
 
-    Do not invent competitor information,
-    funding details, customer numbers, or pricing. 
+    - Prefer official competitor websites, product documentation
+      and published pricing pages.
+    - Use customer reviews or discussions only as supporting
+      evidence of customer experience.
+    - Include exact source URLs for important competitor claims.
+    - Include publication dates wherever available.
+    - Distinguish verified product features from assumptions.
+    - Mention pricing only when publicly verified. Include the
+      currency and billing period.
+    - If pricing is unavailable, write "Not publicly verified".
+    - Do not claim that no competitor offers a feature unless
+      there is sufficient evidence to support that conclusion.
+    - Describe competitive gaps as potential opportunities
+      when the available research is limited.
+    - Never invent competitor features, prices, funding details,
+      customer numbers or market share.
 
     Research limits:
 
-    - Perform at most two focused searches using Exa.
-    - Fetch at most one relevant webpage using Exa when necessary.
-    - Prefer reliable and recent primary sources.
-    - Include no more than two relevant source references.
-    - Include source URLs and publication dates wherever available.
+    - Perform at most two focused Exa searches.
+    - Fetch at most one relevant webpage when necessary.
+    - Prefer primary and credible sources.
+    - Include no more than two source references.
+    - Do not repeat searches to find confirmation for an already
+      supported finding.
 
   expected_output: >
-    A concise competitor analysis of approximately 250-300 words
-    covering relevant competitors, their offerings, pricing where
-    available, positioning, competitive gaps, and up to two
-    source references.
+    A competitor analysis of approximately 250-350 words.
+
+    Include:
+    - Relevant direct and indirect competitors.
+    - Their verified offerings and target users.
+    - Publicly verified pricing where available.
+    - Competitive positioning and potential gaps.
+    - Important competitive risks.
+    - Up to two source references with exact URLs and dates
+      wherever available.
+
+    Do not make unsupported claims about competitor weaknesses
+    or market-wide feature gaps.
 
   markdown: true
   async_execution: true
@@ -114,47 +163,65 @@ customer_insights_task:
 
     Additional Context: {additional_context}
 
-    Analyse the following:
+    Analyse the following areas:
 
     1. Customer Segmentation:
-       - Relevant customer segments.
-       - Primary and secondary target users.
-       - Important characteristics of each segment.
+       - Identify relevant customer segments.
+       - Distinguish primary and secondary potential users.
+       - Explain the characteristics relevant to the business idea.
 
     2. Customer Needs and Pain Points:
-       - Problems customers currently face.
-       - Existing alternatives and workarounds.
-       - Unmet needs and expectations.
+       - Identify problems customers currently face.
+       - Identify existing alternatives and workarounds.
+       - Highlight unmet needs supported by available evidence.
 
     3. Customer Behaviour:
-       - Purchasing and decision-making considerations.
-       - Adoption barriers.
-       - Factors influencing product acceptance.
+       - Identify purchasing and decision-making considerations.
+       - Analyse adoption barriers and factors influencing acceptance.
+       - Identify evidence of willingness to pay where available.
 
     4. Customer Value:
-       - Outcomes customers expect.
-       - Important product capabilities.
-       - Available evidence of willingness to pay.
+       - Identify outcomes customers expect.
+       - Highlight product capabilities that may address those needs.
 
-    Use customer reviews, public discussions, industry surveys,
-    and credible research reports wherever possible.
+    Evidence and reporting rules:
 
-    Do not invent interview findings, survey results, or customer
-    quotations. Clearly distinguish evidence from assumptions.
+    - Prefer credible surveys, published research, public reviews
+      and relevant customer discussions.
+    - Include exact source URLs for important findings.
+    - Include survey sample size and geography wherever available.
+    - Never invent customer interviews, survey results,
+      quotations or purchasing behaviour.
+    - Do not present an inferred persona as a verified customer.
+    - Clearly distinguish observed customer evidence from
+      analyst interpretation and hypotheses.
+    - Do not claim willingness to pay without supporting evidence.
+    - If evidence is unavailable, explicitly state that it
+      could not be verified.
 
     Research limits:
 
-    - Perform at most two focused searches using Exa.
-    - Fetch at most one relevant webpage using Exa when necessary.
-    - Prefer reliable and recent primary sources.
-    - Include no more than two relevant source references.
-    - Include source URLs and publication dates wherever available.
-
+    - Perform at most two focused Exa searches.
+    - Fetch at most one relevant webpage when necessary.
+    - Prefer primary and credible sources.
+    - Include no more than two source references.
+    - Do not repeat searches to find confirmation for an already
+      supported finding.
 
   expected_output: >
-    A concise customer research report of approximately 250-300 words
-    covering target segments, customer needs, pain points, alternatives,
-    adoption barriers, and up to two source references.
+    A customer research report of approximately 250-350 words.
+
+    Include:
+    - Relevant customer segments.
+    - Evidence-backed customer needs and pain points.
+    - Existing alternatives and adoption barriers.
+    - Available evidence of purchasing behaviour and willingness
+      to pay.
+    - Clearly labelled hypotheses where evidence is unavailable.
+    - Up to two source references with exact URLs and dates
+      wherever available.
+
+    Do not fabricate customer feedback, personas or survey findings.
 
   markdown: true
   async_execution: true
@@ -164,75 +231,111 @@ customer_insights_task:
 business_requirements_task:
   description: >
     Prepare a structured business requirements specification
-    using the original business brief and the three research
+    using the original business brief and all three research
     reports provided in the task context.
 
     Project Brief: {project_brief}
 
     Additional Context: {additional_context}
 
-    Prepare the following:
+    The original project brief is the primary source of truth.
+    Research findings provide supporting evidence and context,
+    but they are not stakeholder-approved requirements.
+
+    First identify the business information explicitly provided
+    by the user:
 
     1. Business Context:
-       - Business problem and objectives.
-       - Project background.
-       - Intended users and stakeholders.
+       - Business problem and background.
+       - Stated business objectives.
+       - Intended users and stakeholders, where provided.
 
     2. Project Scope:
-       - In-scope features and capabilities.
-       - Out-of-scope items.
-       - Assumptions, constraints, and dependencies.
+       - Capabilities explicitly described in the brief.
+       - Proposed capabilities suggested by research.
+       - Information that remains undefined.
+       - Assumptions, constraints and dependencies.
 
     3. Functional Requirements:
-       - Convert the stated business needs into clear requirements.
+       - Translate explicitly stated product needs into requirements.
        - Assign unique IDs such as BRD-F-101.
        - Explain the purpose of each requirement.
+       - Identify the source of every requirement.
+       - Mark requirements derived from analyst recommendations
+         as Proposed - Approval Required.
 
     4. Non-Functional Requirements:
        - Identify relevant performance, usability, security,
-         reliability, and scalability requirements.
+         reliability, privacy and scalability considerations.
        - Assign IDs such as BRD-NF-101.
+       - Do not invent numerical targets or technical thresholds.
+       - Mark targets that need engineering or stakeholder
+         validation as TBD.
 
     5. Requirement Prioritisation:
-       - Use Must Have, Should Have, and Could Have priorities.
-       - Provide a clear rationale for each priority.
+       - Use Must Have, Should Have and Could Have.
+       - Provide a brief priority rationale.
+       - Mark analyst-assigned priorities as Proposed.
 
     6. Acceptance Criteria:
        - Define clear and testable acceptance criteria.
-       - Link requirements to their relevant business objectives.
+       - Link each criterion to its requirement and business objective.
+       - Use numerical thresholds only when supported by the brief
+         or reliable evidence.
+       - Mark unavailable thresholds as TBD instead of guessing.
 
     7. Open Questions:
-       - Identify missing stakeholder information.
-       - Record unresolved assumptions and dependencies.
+       - Identify missing stakeholder decisions.
+       - Identify undefined success metrics and measurement methods.
+       - Record unresolved assumptions, constraints and dependencies.
 
-    The user's original business problem and objectives must remain
-    the source of truth. Research findings can support requirements,
-    but must not be treated as stakeholder-approved decisions.
+    Requirement classification rules:
+
+    - Confirmed by Brief:
+      Information or capabilities explicitly stated by the user.
+
+    - Proposed - Approval Required:
+      Recommendations or capabilities inferred by the analysts.
+      These must never be presented as confirmed stakeholder decisions.
+
+    - Research-Supported:
+      Findings supported by the research reports and their source URLs.
+      Research evidence does not independently approve product scope.
+
+    - TBD:
+      Information that has not been provided or verified.
 
     Do not invent budgets, deadlines, stakeholder responses,
-    or project approvals.
+    approvals, technical architecture or business decisions.
 
-    Include the most important findings from each of the three research
-    reports and retain their supporting source URLs. This research
-    summary will be used by the final Business Analyst.
+    Include no more than two important findings from each research
+    report, retaining their supporting source URLs.
+
+    Avoid repeating entire research reports. Focus on translating
+    the brief into a clear, traceable requirements specification.
 
   expected_output: >
-    A structured requirements specification of approximately
-    700-900 words.
+    A structured business requirements specification of
+    approximately 750-950 words.
 
     Include:
-    - Business objectives and project scope.
-    - Prioritised functional and non-functional requirements.
-    - Unique requirement IDs and measurable acceptance criteria.
+
+    - Business context and objectives.
+    - Project scope and boundaries.
+    - Functional and non-functional requirements.
+    - Unique requirement IDs.
+    - Requirement source and confirmation status.
+    - Proposed priorities with rationale.
+    - Testable acceptance criteria.
     - Requirement-to-objective traceability.
-    - Assumptions, dependencies, and open questions.
+    - Key research findings with source URLs.
+    - Assumptions, constraints, dependencies and open questions.
 
-    Include no more than three key research findings from each
-    research report, retaining their source URLs.
+    Clearly distinguish confirmed requirements from proposed
+    recommendations.
 
-    Do not repeat complete research reports, duplicate information,
-    or introduce requirements unsupported by the business brief
-    or research findings.
+    Do not invent numerical targets, technical thresholds,
+    stakeholder decisions or project approvals.
 
     Mark missing information as TBD.
 
@@ -249,11 +352,15 @@ business_analyst_task:
 
     Additional Context: {additional_context}
 
-    Use the original Project Brief and the business requirements
-    specification provided in the task context. The specification
-    includes key findings and source URLs from all three research reports.
+    Use the original Project Brief as the primary source of truth.
+    Use the business requirements specification and its research
+    references as supporting inputs.
 
-    Follow this exact structure:
+    The requirements specification already contains the important
+    findings from the three research reports. Do not reproduce
+    the complete research reports.
+
+    Follow this exact document structure:
 
     1. Document Control
 
@@ -268,54 +375,118 @@ business_analyst_task:
     4. Detailed Functional Requirements
 
     5. End-to-End Pipeline & Metric Traceability Matrix
- 
-       If a technical pipeline is not relevant to the project,
-       document the applicable business process flow instead.
 
     6. Non-Functional, Technical & Security Requirements
 
     7. Implementation Phasing & Acceptance Criteria
+       7.1 Implementation Phasing
+       7.2 Acceptance Criteria
+       7.3 Assumptions, Constraints & Dependencies
 
     8. Sign-Off & Approval Matrix
+       8.1 Open Questions Blocking Sign-Off
 
-    Treat the supplied BRD document only as a structure and formatting
-    reference. Never reuse its project details, names, company information,
-    figures, or approval data. Use TBD for information not provided.
-    Write the output using Markdown heading markers (#, ##, ###).
+    DOCUMENT CONTROL:
 
-    Ensure the following:
+    - Use a professional draft status for stakeholder review.
+    - Use TBD for missing document IDs, author names, dates,
+      version approval and other unavailable information.
+    - Never imply that approval has already been granted.
 
-    - Preserve requirement IDs and priorities.
-    - Maintain consistency across all document sections.
-    - Link business objectives to relevant requirements and metrics.
-    - Include measurable acceptance criteria.
-    - Retain important research findings and source references.
-    - Clearly distinguish facts, estimates, and assumptions.
-    - Mark missing information as TBD.
-    - Include unresolved stakeholder questions.
+    BUSINESS OBJECTIVES:
 
-    Never fabricate stakeholder names, approvals, dates, budgets,
-    or business decisions.
+    - Preserve the objectives and numerical targets stated in
+      the original brief.
+    - Do not invent target dates or measurement definitions.
+    - Clearly identify objectives whose measurement method,
+      baseline or timeframe remains undefined.
 
-    The document must be a professional draft for stakeholder review,
-    not a document that implies approval has already been granted.
+    PROJECT SCOPE:
+
+    - Separate capabilities explicitly stated in the brief from
+      proposed capabilities requiring approval.
+    - Do not invent an out-of-scope list.
+    - If the brief does not define exclusions, state that
+      out-of-scope items are yet to be confirmed.
+
+    FUNCTIONAL REQUIREMENTS:
+
+    - Preserve the requirement IDs from the specification.
+    - Include source/status labels for each requirement.
+    - Distinguish Confirmed by Brief from Proposed - Approval Required.
+    - Preserve priorities and identify proposed priorities as such.
+    - Do not add new requirements during document generation.
+
+    PIPELINE AND TRACEABILITY:
+
+    - Describe the applicable end-to-end business process.
+    - Include technical pipeline stages only when supported by
+      the proposed solution or explicitly identified as proposed.
+    - Link process stages to their relevant requirement IDs
+      and business objectives.
+    - Link metrics to their measurement methods and sources.
+    - Use TBD for undefined metrics and thresholds.
+
+    NON-FUNCTIONAL REQUIREMENTS:
+
+    - Include only relevant and justified requirements.
+    - Do not invent latency, availability, scalability, security
+      or accuracy thresholds.
+    - Mark unvalidated numerical targets as Proposed - TBD.
+    - Do not claim that a particular privacy regulation applies
+      without a confirmed target geography and supporting evidence.
+
+    IMPLEMENTATION AND ACCEPTANCE:
+
+    - Group requirements into sensible implementation phases.
+    - Base phasing on requirement priorities.
+    - Clearly mark proposed phasing as requiring stakeholder review.
+    - Include testable acceptance criteria.
+    - Do not invent numerical success thresholds.
+
+    RESEARCH AND REFERENCES:
+
+    - Retain important verified research findings.
+    - Preserve exact source URLs from the research reports.
+    - Include publication dates and source names where available.
+    - Do not cite sources that were not actually retrieved.
+    - If a research claim has no verifiable source URL,
+      omit the claim or clearly mark it as unverified.
+
+    APPROVAL:
+
+    - Never fabricate stakeholder names, roles, signatures,
+      approval dates or business decisions.
+    - Use TBD for missing approval information.
+    - Include open questions that block final approval.
+
+    Treat the supplied BRD document only as a structure and
+    formatting reference. Never reuse its project details,
+    names, company information, figures or approval data.
+
+    Write the document using Markdown heading markers (#, ##, ###).
+    Use concise tables where they make requirements easier to review.
 
   expected_output: >
     A complete Business Requirements Document of approximately
-    1,200-1,600 words.
+    1,300-1,700 words.
 
-    Follow all eight sections in the specified structure.
-    Preserve requirement IDs, priorities, acceptance criteria,
-    traceability, assumptions, source references, and open questions.
+    Follow all eight sections and their specified subsections.
 
-    Use concise tables wherever appropriate. Do not repeat the
-    same information across multiple sections.
+    Preserve requirement IDs, source/status labels, priorities,
+    acceptance criteria, objective traceability, research references,
+    assumptions, dependencies and open questions.
 
-    Do not introduce new requirements, business decisions,
-    figures, or stakeholder information that are not supported
-    by the brief or requirements specification.
+    Separate confirmed information from proposed recommendations.
 
-    Mark unavailable information as TBD.
+    Do not repeat the same information across multiple sections.
+    Do not invent requirements, figures, technical targets,
+    stakeholder decisions or approvals.
+
+    Use TBD wherever information is missing or unverified.
+
+    The result must be a professional draft for stakeholder review,
+    not an approved or finalised business specification.
 
   markdown: true
   agent: business_analyst

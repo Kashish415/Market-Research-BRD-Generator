@@ -1,4 +1,7 @@
+.venv/
+.git/
 .env
 __pycache__/
 .DS_Store
 .crewai/
+outputs/

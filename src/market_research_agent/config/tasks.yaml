@@ -2,15 +2,9 @@ market_research_task:
   description: >
     Conduct market research for the following business idea:
 
-    Business Idea: {business_idea}
-    Business Problem: {business_problem}
-    Business Objectives: {business_objectives}
-    Target Users: {target_users}
-    Industry: {industry}
-    Industry Details: {industry_details}
-    Target Geography: {target_geography}
-    Proposed Features: {proposed_features}
-    Existing Systems and Constraints: {existing_systems_constraints}
+    Project Brief: {project_brief}
+
+    Additional Context: {additional_context}
 
     Analyse the relevant market, including:
 
@@ -38,14 +32,22 @@ market_research_task:
 
     Do not invent market figures or present unsupported estimates
     as facts. Clearly state assumptions and data limitations.
+    
+    Research limits:
+
+    - Perform at most two focused searches using Exa.
+    - Fetch at most one relevant webpage using Exa when necessary.
+    - Prefer reliable and recent primary sources.
+    - Include no more than two relevant source references.
 
   expected_output: >
-    A structured market research report covering market overview,
-    available market sizing, growth trends, industry developments,
-    applicable regulations, opportunities, risks, and source references.
+    A concise market research report of approximately 250-300 words
+    covering market overview, available market sizing, industry trends,
+    relevant regulations, opportunities, risks, and up to two
+    source references.
 
-  async_execution: true
   markdown: true
+  async_execution: true
   agent: market_research_specialist
 
 
@@ -54,15 +56,9 @@ competitive_intelligence_task:
     Conduct competitive intelligence research for the following
     business idea:
 
-    Business Idea: {business_idea}
-    Business Problem: {business_problem}
-    Business Objectives: {business_objectives}
-    Target Users: {target_users}
-    Industry: {industry}
-    Industry Details: {industry_details}
-    Target Geography: {target_geography}
-    Proposed Features: {proposed_features}
-    Existing Systems and Constraints: {existing_systems_constraints}
+    Project Brief: {project_brief}
+
+    Additional Context: {additional_context}
 
     Analyse the competitive landscape, including:
 
@@ -88,17 +84,25 @@ competitive_intelligence_task:
     Use competitor websites, product documentation, customer
     reviews, and other credible public sources.
 
-    Include source URLs. Do not invent competitor information,
-    funding details, customer numbers, or pricing.
+    Do not invent competitor information,
+    funding details, customer numbers, or pricing. 
+
+    Research limits:
+
+    - Perform at most two focused searches using Exa.
+    - Fetch at most one relevant webpage using Exa when necessary.
+    - Prefer reliable and recent primary sources.
+    - Include no more than two relevant source references.
+    - Include source URLs and publication dates wherever available.
 
   expected_output: >
-    A structured competitive intelligence report containing relevant
-    competitor profiles, a feature and pricing comparison matrix,
-    market positioning, competitive strengths and weaknesses,
-    market gaps, and source references.
+    A concise competitor analysis of approximately 250-300 words
+    covering relevant competitors, their offerings, pricing where
+    available, positioning, competitive gaps, and up to two
+    source references.
 
-  async_execution: true
   markdown: true
+  async_execution: true
   agent: competitive_intelligence_analyst
 
 
@@ -106,15 +110,9 @@ customer_insights_task:
   description: >
     Research potential customers for the following business idea:
 
-    Business Idea: {business_idea}
-    Business Problem: {business_problem}
-    Business Objectives: {business_objectives}
-    Target Users: {target_users}
-    Industry: {industry}
-    Industry Details: {industry_details}
-    Target Geography: {target_geography}
-    Proposed Features: {proposed_features}
-    Existing Systems and Constraints: {existing_systems_constraints}
+    Project Brief: {project_brief}
+
+    Additional Context: {additional_context}
 
     Analyse the following:
 
@@ -144,14 +142,22 @@ customer_insights_task:
     Do not invent interview findings, survey results, or customer
     quotations. Clearly distinguish evidence from assumptions.
 
-  expected_output: >
-    A structured customer insights report containing customer
-    segments, user needs, pain points, current alternatives,
-    expectations, adoption barriers, purchasing considerations,
-    and source references.
+    Research limits:
 
-  async_execution: true
+    - Perform at most two focused searches using Exa.
+    - Fetch at most one relevant webpage using Exa when necessary.
+    - Prefer reliable and recent primary sources.
+    - Include no more than two relevant source references.
+    - Include source URLs and publication dates wherever available.
+
+
+  expected_output: >
+    A concise customer research report of approximately 250-300 words
+    covering target segments, customer needs, pain points, alternatives,
+    adoption barriers, and up to two source references.
+
   markdown: true
+  async_execution: true
   agent: customer_insights_researcher
 
 
@@ -161,15 +167,9 @@ business_requirements_task:
     using the original business brief and the three research
     reports provided in the task context.
 
-    Business Idea: {business_idea}
-    Business Problem: {business_problem}
-    Business Objectives: {business_objectives}
-    Target Users: {target_users}
-    Industry: {industry}
-    Industry Details: {industry_details}
-    Target Geography: {target_geography}
-    Proposed Features: {proposed_features}
-    Existing Systems and Constraints: {existing_systems_constraints}
+    Project Brief: {project_brief}
+
+    Additional Context: {additional_context}
 
     Prepare the following:
 
@@ -212,11 +212,29 @@ business_requirements_task:
     Do not invent budgets, deadlines, stakeholder responses,
     or project approvals.
 
+    Include the most important findings from each of the three research
+    reports and retain their supporting source URLs. This research
+    summary will be used by the final Business Analyst.
+
   expected_output: >
-    A structured requirements specification containing business
-    objectives, scope, functional requirements, non-functional
-    requirements, requirement IDs, priorities, acceptance criteria,
-    traceability, dependencies, assumptions, and open questions.
+    A structured requirements specification of approximately
+    700-900 words.
+
+    Include:
+    - Business objectives and project scope.
+    - Prioritised functional and non-functional requirements.
+    - Unique requirement IDs and measurable acceptance criteria.
+    - Requirement-to-objective traceability.
+    - Assumptions, dependencies, and open questions.
+
+    Include no more than three key research findings from each
+    research report, retaining their source URLs.
+
+    Do not repeat complete research reports, duplicate information,
+    or introduce requirements unsupported by the business brief
+    or research findings.
+
+    Mark missing information as TBD.
 
   markdown: true
   agent: business_requirements_analyst
@@ -227,33 +245,43 @@ business_analyst_task:
     Prepare the final Business Requirements Document for the
     following project:
 
-    Business Idea: {business_idea}
-    Business Problem: {business_problem}
-    Business Objectives: {business_objectives}
+    Project Brief: {project_brief}
 
-    Use the original business brief, all three research reports,
-    and the business requirements specification provided in
-    the task context.
+    Additional Context: {additional_context}
 
-    Follow this document structure:
+    Use the original Project Brief and the business requirements
+    specification provided in the task context. The specification
+    includes key findings and source URLs from all three research reports.
+
+    Follow this exact structure:
 
     1. Document Control
 
-    2. Executive Summary and Project Objectives
+    2. Executive Summary & Project Objectives
+       2.1 Context & Business Problem
+       2.2 Strategic Objectives
 
-    3. Context and Business Problem
+    3. Project Scope & Boundary Conditions
+       3.1 In-Scope Modules
+       3.2 Out-of-Scope
 
-    4. Project Scope and Boundary Conditions
+    4. Detailed Functional Requirements
 
-    5. Detailed Functional Requirements
+    5. End-to-End Pipeline & Metric Traceability Matrix
+ 
+       If a technical pipeline is not relevant to the project,
+       document the applicable business process flow instead.
 
-    6. End-to-End Process and Metric Traceability Matrix
+    6. Non-Functional, Technical & Security Requirements
 
-    7. Non-Functional, Technical, and Security Requirements
+    7. Implementation Phasing & Acceptance Criteria
 
-    8. Implementation Phasing and Acceptance Criteria
+    8. Sign-Off & Approval Matrix
 
-    9. Sign-Off and Approval Matrix
+    Treat the supplied BRD document only as a structure and formatting
+    reference. Never reuse its project details, names, company information,
+    figures, or approval data. Use TBD for information not provided.
+    Write the output using Markdown heading markers (#, ##, ###).
 
     Ensure the following:
 
@@ -273,10 +301,21 @@ business_analyst_task:
     not a document that implies approval has already been granted.
 
   expected_output: >
-    A complete Business Requirements Document in structured Markdown,
-    containing all nine sections, requirement tables, priorities,
-    acceptance criteria, traceability, implementation phases,
-    assumptions, open questions, source references, and approval matrix.
+    A complete Business Requirements Document of approximately
+    1,200-1,600 words.
+
+    Follow all eight sections in the specified structure.
+    Preserve requirement IDs, priorities, acceptance criteria,
+    traceability, assumptions, source references, and open questions.
+
+    Use concise tables wherever appropriate. Do not repeat the
+    same information across multiple sections.
+
+    Do not introduce new requirements, business decisions,
+    figures, or stakeholder information that are not supported
+    by the brief or requirements specification.
+
+    Mark unavailable information as TBD.
 
   markdown: true
   agent: business_analyst

@@ -57,6 +57,13 @@ market_research_task:
     - Do not repeat searches to find confirmation for an already
       supported finding.
 
+    - Make only one Exa tool call at a time.
+    - Do not request multiple Exa searches in parallel.
+    - Use only parameters defined in the available tool schema.
+    - Do not invent optional tool arguments.
+    - After each search, review its results before deciding whether
+      another search or webpage fetch is necessary.
+
   expected_output: >
     A market research report of approximately 250-350 words.
 
@@ -135,6 +142,13 @@ competitive_intelligence_task:
     - Do not repeat searches to find confirmation for an already
       supported finding.
 
+    - Make only one Exa tool call at a time.
+    - Do not request multiple Exa searches in parallel.
+    - Use only parameters defined in the available tool schema.
+    - Do not invent optional tool arguments.
+    - After each search, review its results before deciding whether
+      another search or webpage fetch is necessary.
+
   expected_output: >
     A competitor analysis of approximately 250-350 words.
 
@@ -207,6 +221,13 @@ customer_insights_task:
     - Include no more than two source references.
     - Do not repeat searches to find confirmation for an already
       supported finding.
+
+    - Make only one Exa tool call at a time.
+    - Do not request multiple Exa searches in parallel.
+    - Use only parameters defined in the available tool schema.
+    - Do not invent optional tool arguments.
+    - After each search, review its results before deciding whether
+      another search or webpage fetch is necessary.
 
   expected_output: >
     A customer research report of approximately 250-350 words.

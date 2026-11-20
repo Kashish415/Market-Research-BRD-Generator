@@ -12,6 +12,7 @@ llm = LLM(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ["OPENROUTER_API_KEY"],
     custom_openai=True,
+    temperature=0.3,
 )
 
 exa_mcp = ["https://mcp.exa.ai/mcp"]
@@ -120,7 +121,6 @@ class MarketResearchAgent():
                     tasks= self.tasks,
                     process = Process.sequential,
                     tracing = True,
-                    stream = True   
             )
     
 

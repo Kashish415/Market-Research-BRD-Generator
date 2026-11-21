@@ -5,14 +5,17 @@ from pathlib import Path
 from uuid import uuid4
 
 import httpx
-from dotenv import load_dotenv
 from nicegui import ui
 
-from market_research_agent.amp_api import extract_brd_text, get_status, start_execution
+from market_research_agent.amp_api import (
+    extract_brd_text,
+    get_status,
+    normalize_execution_status,
+    progress_summary,
+    start_execution,
+)
 from market_research_agent.brd_docx_generator import create_brd_docx
 
-
-load_dotenv()
 
 generation_semaphore = asyncio.Semaphore(2)
 
@@ -50,8 +53,17 @@ def index():
         results = ui.column().classes("w-full")
 
     generation_lock = asyncio.Lock()
+    last_submission = 0.0
 
     async def generate_brd():
+        nonlocal last_submission
+
+        current_time = time.monotonic()
+        if current_time - last_submission < 60:
+            remaining = 60 - (current_time - last_submission)
+            ui.notify(f"Please wait {remaining:.0f} seconds before submitting again.", type="warning")
+            return
+
         brief = (project_brief.value or "").strip()
         context = (additional_context.value or "").strip()
 
@@ -72,6 +84,7 @@ def index():
             return
 
         async with generation_lock:
+            last_submission = time.monotonic()
             generate_button.disable()
             results.clear()
             activity_log.clear()
@@ -117,35 +130,27 @@ def index():
                                 kickoff_id,
                             )
 
-                            state = str(result_status.get("state", "")).upper()
+                            state = normalize_execution_status(result_status)
 
-                            if state == "SUCCESS":
+                            if state == "completed":
                                 break
 
-                            if state in {"FAILED", "REVOKED"}:
+                            if state == "failed":
                                 error = result_status.get("error") or result_status.get("status")
                                 if error:
                                     raise RuntimeError(f"AMP execution failed: {error}")
                                 raise RuntimeError("AMP execution failed.")
 
-                            if state == "PAUSED":
+                            if state == "paused":
                                 raise RuntimeError("AMP execution is paused and is waiting for human input.")
 
-                            if state not in {"PENDING", "STARTED", "RUNNING"}:
+                            if state != "running":
                                 raise RuntimeError("AMP returned an unknown execution state.")
 
-                            progress = result_status.get("progress")
-                            activity = state
-
-                            if isinstance(progress, dict):
-                                completed = progress.get("completed")
-                                total = progress.get("total")
-                                current = progress.get("current")
-
-                                if isinstance(completed, int) and isinstance(total, int):
-                                    activity = f"{state} | {completed}/{total} tasks"
-                                if isinstance(current, str) and current:
-                                    activity += f" | {current}"
+                            progress = progress_summary(result_status)
+                            activity = "RUNNING"
+                            if progress:
+                                activity += f" | {progress}"
 
                             if activity != last_activity:
                                 status.set_text(f"AMP execution | {activity}")

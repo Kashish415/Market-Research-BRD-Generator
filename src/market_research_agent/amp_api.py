@@ -86,3 +86,50 @@ async def get_status(
         raise RuntimeError(_response_error(response))
 
     return response.json()
+
+
+def normalize_execution_status(status: dict) -> str:
+    value = status.get("state") or status.get("status")
+    if not isinstance(value, str):
+        return ""
+
+    value = value.strip().lower()
+
+    if value in {"pending", "started", "running"}:
+        return "running"
+    if value in {"success", "completed"}:
+        return "completed"
+    if value in {"failed", "error", "revoked"}:
+        return "failed"
+    if value == "paused":
+        return "paused"
+
+    return ""
+
+
+def progress_summary(status: dict) -> str:
+    progress = status.get("progress")
+    if not isinstance(progress, dict):
+        current_task = status.get("current_task")
+        return current_task if isinstance(current_task, str) and current_task else ""
+
+    completed = progress.get("completed_tasks")
+    if completed is None:
+        completed = progress.get("completed")
+
+    total = progress.get("total_tasks")
+    if total is None:
+        total = progress.get("total")
+
+    current = progress.get("current_task") or progress.get("current")
+
+    if isinstance(completed, int) and isinstance(total, int):
+        summary = f"{completed}/{total} tasks"
+        if isinstance(current, str) and current:
+            return f"{summary} | {current}"
+        return summary
+
+    if isinstance(current, str) and current:
+        return current
+
+    return ""

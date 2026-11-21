@@ -54,7 +54,7 @@ Local environment variables:
 - `PORT`: Optional frontend port, default `8080`
 - `HOST`: Optional frontend host, default `0.0.0.0`
 
-Keep secrets in a local `.env` file or platform environment settings. Do not commit `.env` or API keys.
+Keep secrets in platform environment settings or set them in your terminal environment locally. Do not commit `.env` or API keys.
 
 Start the frontend:
 
@@ -106,7 +106,7 @@ NiceGUI sends a bearer-authenticated `POST /kickoff` request with:
 }
 ```
 
-It receives a `kickoff_id`, polls `GET /status/{kickoff_id}`, and stops when AMP reports `SUCCESS`, `FAILED`, `REVOKED`, or `PAUSED`. It does not show fabricated agent-level progress. The AMP `/progress` and task fields are used when they are available.
+It receives a `kickoff_id`, polls `GET /status/{kickoff_id}`, and stops when AMP reports `completed`, `error`, or `revoked`. Running executions are shown with `running` and available task progress. The frontend also accepts the newer `state` response format for compatibility. It does not show fabricated agent-level progress. The AMP `/progress` and task fields are used when they are available.
 
 ## Template and outputs
 
@@ -115,3 +115,7 @@ The DOCX template must remain at:
 - `templates/BUSINESS REQUIREMENTS DOCUMENT.docx`
 
 Generated files are stored under `outputs/` using a unique directory and filename for each run.
+
+## Public submission limits
+
+Public submissions are limited to two concurrent runs and a 60-second cooldown for each open page.

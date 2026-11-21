@@ -3,7 +3,13 @@ import unittest
 
 import httpx
 
-from market_research_agent.amp_api import extract_brd_text, get_status, start_execution
+from market_research_agent.amp_api import (
+    extract_brd_text,
+    get_status,
+    normalize_execution_status,
+    progress_summary,
+    start_execution,
+)
 
 
 class AmpApiTests(unittest.TestCase):
@@ -36,7 +42,17 @@ class AmpApiTests(unittest.TestCase):
         async def run_test():
             async def handler(request: httpx.Request) -> httpx.Response:
                 self.assertEqual(request.url.path, "/status/test-id")
-                return httpx.Response(200, json={"state": "SUCCESS", "result": "Final BRD"})
+                return httpx.Response(
+                    200,
+                    json={
+                        "status": "completed",
+                        "progress": {
+                            "completed_tasks": 5,
+                            "total_tasks": 5,
+                        },
+                        "result": {"output": "Final BRD"},
+                    },
+                )
 
             transport = httpx.MockTransport(handler)
             async with httpx.AsyncClient(transport=transport) as client:
@@ -48,7 +64,8 @@ class AmpApiTests(unittest.TestCase):
                 )
 
         status = asyncio.run(run_test())
-        self.assertEqual(status["state"], "SUCCESS")
+        self.assertEqual(normalize_execution_status(status), "completed")
+        self.assertEqual(progress_summary(status), "5/5 tasks")
 
     def test_extract_brd_text_supports_result_and_result_json(self):
         self.assertEqual(
@@ -59,6 +76,28 @@ class AmpApiTests(unittest.TestCase):
             extract_brd_text({"result_json": {"output": "BRD from JSON"}}),
             "BRD from JSON",
         )
+
+    def test_status_supports_new_state_format(self):
+        self.assertEqual(
+            normalize_execution_status({"state": "RUNNING"}),
+            "running",
+        )
+        self.assertEqual(
+            normalize_execution_status({"state": "SUCCESS"}),
+            "completed",
+        )
+
+    def test_progress_supports_new_field_names(self):
+        summary = progress_summary(
+            {
+                "progress": {
+                    "completed": 3,
+                    "total": 5,
+                    "current": "Business Requirements",
+                }
+            }
+        )
+        self.assertEqual(summary, "3/5 tasks | Business Requirements")
 
 
 if __name__ == "__main__":

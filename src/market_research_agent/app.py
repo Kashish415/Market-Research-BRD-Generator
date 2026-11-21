@@ -15,7 +15,9 @@ from market_research_agent.amp_api import (
     start_execution,
 )
 from market_research_agent.brd_docx_generator import create_brd_docx
+from dotenv import load_dotenv
 
+load_dotenv()
 
 generation_semaphore = asyncio.Semaphore(2)
 

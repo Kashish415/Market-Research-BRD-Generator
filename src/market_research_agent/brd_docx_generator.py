@@ -1,13 +1,14 @@
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
-def create_brd_docx(markdown: str) -> Path:
+def create_brd_docx(markdown: str, output_dir: Path | None = None) -> Path:
     project_root = Path(__file__).resolve().parents[2]
     template_path = project_root / "templates" / "BUSINESS REQUIREMENTS DOCUMENT.docx"
-    output_dir = project_root / "outputs"
+    output_dir = output_dir or project_root / "outputs"
 
     if not template_path.exists():
         raise FileNotFoundError(f"BRD template not found: {template_path}")
@@ -85,7 +86,9 @@ def create_brd_docx(markdown: str) -> Path:
 
         i += 1
 
-    output_path = output_dir / f"BRD_{datetime.now():%Y%m%d_%H%M%S}.docx"
+    output_path = output_dir / (
+        f"BRD_{datetime.now():%Y%m%d_%H%M%S}_{uuid4().hex}.docx"
+    )
     document.save(output_path)
 
     return output_path

@@ -7,18 +7,16 @@ requires-python = ">=3.10,<3.14"
 dependencies = [
     "crewai-tools[mcp]>=1.15.33",
     "crewai[litellm,tools]>=1.15.30,<2.0.0",
+    "httpx>=0.28.1,<1.0",
+    "nicegui==3.19.0",
     "openai>=2.54.0",
     "python-docx>=1.2.0",
     "python-dotenv>=1.2.4",
 ]
 
 [project.scripts]
-market_research_agent = "market_research_agent.main:run"
 run_crew = "market_research_agent.main:run"
-train = "market_research_agent.main:train"
-replay = "market_research_agent.main:replay"
-test = "market_research_agent.main:test"
-run_with_trigger = "market_research_agent.main:run_with_trigger"
+market_research_ui = "market_research_agent.app:main"
 
 [build-system]
 requires = ["hatchling"]

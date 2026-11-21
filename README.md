@@ -1,59 +1,117 @@
 # Market Research Agent
 
-This project takes a business idea and produces market and customer research, a requirements specification, and a draft Business Requirements Document (BRD). It uses five CrewAI agents and can be deployed to CrewAI AMP.
+This project accepts a business idea and generates market research, competitor analysis, customer insights, requirements, and an editable Business Requirements Document.
 
-## Agents and workflow
+## Architecture
 
-The Crew runs with a sequential process. The first three research tasks run asynchronously:
+The project uses two deployments:
 
-1. **Market Research Specialist** researches the market, trends, regulation, and opportunities.
-2. **Competitive Intelligence Analyst** researches direct and indirect competitors, their offerings, and possible gaps.
-3. **Customer Insights Researcher** researches customer segments, needs, and available evidence about buying behaviour.
+1. CrewAI AMP runs the existing Crew and stores execution history and traces.
+2. A public NiceGUI application provides the website for entering a project brief and downloading the BRD.
 
-The remaining tasks run synchronously:
+The NiceGUI server calls AMP through its REST API. It does not start a second copy of the Crew.
 
-4. **Business Requirements Analyst** uses the three research reports and the original brief to prepare a traceable requirements specification.
-5. **Senior Business Analyst and BRD Specialist** uses the requirements specification to create the final BRD.
+## Crew workflow
 
-The requirements task depends on all three research tasks. The final BRD task depends on the requirements task. Agent roles and task instructions are in `src/market_research_agent/config/agents.yaml` and `src/market_research_agent/config/tasks.yaml`.
+The Crew has five agents:
 
-The first three agents use Exa through its hosted MCP endpoint. The Crew uses the OpenRouter-compatible LLM setup in `crew.py`.
+1. Market Research Specialist
+2. Competitive Intelligence Analyst
+3. Customer Insights Researcher
+4. Business Requirements Analyst
+5. Senior Business Analyst and BRD Specialist
 
-## BRD document
+The first three research tasks run asynchronously. The requirements task runs synchronously after those reports. The final BRD task runs synchronously after the requirements task. The Crew process is sequential.
 
-After the final task returns its BRD, `main.py` passes the result to `brd_docx_generator.py`. The generator uses `templates/BUSINESS REQUIREMENTS DOCUMENT.docx` and saves an editable file under `outputs/`.
+The first three agents use Exa MCP. OpenRouter supplies the configured LLM. Agent roles and task instructions remain in:
 
-AMP's documented dashboard and execution API show text results, executions, traces, and metrics. They do not document a downloadable file artifact or a custom file-download route. The DOCX is generated in the deployment container, but users cannot download it directly through the documented AMP interface. Container files may not persist between deployments. The generator is kept, but DOCX download is not currently supported in AMP.
+- `src/market_research_agent/config/agents.yaml`
+- `src/market_research_agent/config/tasks.yaml`
 
-`templates/BRD_Template.docx` is also retained in the repository; the current generator uses `BUSINESS REQUIREMENTS DOCUMENT.docx`.
+## BRD download
 
-## Requirements
+When AMP finishes an execution, NiceGUI reads the completed result and creates a DOCX with `brd_docx_generator.py`. The generator uses `templates/BUSINESS REQUIREMENTS DOCUMENT.docx` and creates a unique file for each run.
+
+The generated DOCX is downloaded by the browser. The file is not downloaded from an AMP container.
+
+## Local setup
+
+Requirements:
 
 - Python 3.10 to 3.13
 - `uv`
-- An OpenRouter API key
 
-Install the project dependencies from the repository root:
+Install dependencies:
 
 ```bash
 uv sync
 ```
 
-## Deploy to CrewAI AMP
+Local environment variables:
 
-The project uses the classic Python/YAML Crew format supported by AMP. It has `type = "crew"` in `pyproject.toml` and includes `uv.lock`.
+- `AMP_API_URL`: Public AMP API base URL
+- `AMP_BEARER_TOKEN`: Deployment bearer token
+- `PORT`: Optional frontend port, default `8080`
+- `HOST`: Optional frontend host, default `0.0.0.0`
 
-1. Push the project to a GitHub repository accessible to your AMP account. Include the `templates/` directory and `uv.lock`.
-2. In CrewAI AMP, connect GitHub and select this repository and branch.
-3. Add `OPENROUTER_API_KEY` in the AMP deployment's environment variables. Do not upload `.env`.
-4. Deploy the project from the AMP dashboard.
-5. Open the deployed Crew's **Run** tab and provide `project_brief` and `additional_context` inputs. Use an empty string for `additional_context` when there is no extra context.
-6. Follow the run in **Executions** and inspect its **Traces** and metrics in the AMP dashboard.
+Keep secrets in a local `.env` file or platform environment settings. Do not commit `.env` or API keys.
 
-The DOCX template is required at `templates/BUSINESS REQUIREMENTS DOCUMENT.docx` when the Crew runs. The current generator saves the file to `outputs/` in the container; AMP does not provide a documented direct download for it.
+Start the frontend:
 
-## References
+```bash
+uv run market_research_ui
+```
 
-- [Prepare for AMP deployment](https://docs-platform.crewai.com/platform/en/guides/prepare-for-deployment)
-- [Deploy to AMP](https://docs-platform.crewai.com/platform/en/guides/deploy-to-amp)
-- [Kick off a Crew in AMP](https://docs-platform.crewai.com/platform/en/guides/kickoff-crew)
+Open `http://localhost:8080`.
+
+## CrewAI AMP deployment
+
+1. Push the project to a GitHub repository.
+2. In CrewAI AMP, choose **Deploy from Code**.
+3. Select the repository and `feat/upgrade_brd` branch.
+4. Configure `OPENROUTER_API_KEY` in the AMP deployment environment.
+5. Deploy the Crew.
+6. Copy the public AMP API URL and deployment bearer token.
+
+The AMP deployment runs `src/market_research_agent/main.py` and `crew.py`. It does not run the NiceGUI application.
+
+## Public NiceGUI deployment
+
+Deploy this repository separately on a public Python hosting service that supports environment variables and WebSocket connections.
+
+Set these values on the frontend service:
+
+- `AMP_API_URL`
+- `AMP_BEARER_TOKEN`
+- `PORT`, if required by the hosting service
+
+Use this start command:
+
+```bash
+uv run market_research_ui
+```
+
+The AMP bearer token remains on the NiceGUI server and is not sent to browser code or rendered in the page.
+
+## API behaviour
+
+NiceGUI sends a bearer-authenticated `POST /kickoff` request with:
+
+```json
+{
+  "inputs": {
+    "project_brief": "Business idea",
+    "additional_context": "Optional context"
+  }
+}
+```
+
+It receives a `kickoff_id`, polls `GET /status/{kickoff_id}`, and stops when AMP reports `SUCCESS`, `FAILED`, `REVOKED`, or `PAUSED`. It does not show fabricated agent-level progress. The AMP `/progress` and task fields are used when they are available.
+
+## Template and outputs
+
+The DOCX template must remain at:
+
+- `templates/BUSINESS REQUIREMENTS DOCUMENT.docx`
+
+Generated files are stored under `outputs/` using a unique directory and filename for each run.

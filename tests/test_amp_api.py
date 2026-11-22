@@ -1,8 +1,6 @@
 import asyncio
 import unittest
-
 import httpx
-
 from market_research_agent.amp_api import (
     extract_brd_text,
     get_status,
@@ -10,7 +8,6 @@ from market_research_agent.amp_api import (
     progress_summary,
     start_execution,
 )
-
 
 class AmpApiTests(unittest.TestCase):
     def test_kickoff_sends_inputs_and_returns_kickoff_id(self):
@@ -98,7 +95,6 @@ class AmpApiTests(unittest.TestCase):
             }
         )
         self.assertEqual(summary, "3/5 tasks | Business Requirements")
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -24,10 +24,10 @@ generation_semaphore = asyncio.Semaphore(2)
 
 @ui.page("/")
 def index():
-    ui.page_title("AI Business Analyst Assistant")
+    ui.page_title("Market Research & BRD Generator")
 
     with ui.column().classes("w-full max-w-5xl mx-auto p-6"):
-        ui.label("AI Business Analyst Assistant").classes("text-3xl font-bold")
+        ui.label("Market Research & BRD Generator").classes("text-3xl font-bold")
         ui.label("Market research, competitor intelligence and BRD generation.").classes("text-gray-500")
 
         with ui.card().classes("w-full"):
@@ -51,6 +51,8 @@ def index():
 
         generate_button = ui.button("Generate BRD", icon="description").classes("w-full")
         status = ui.label()
+        spinner = ui.spinner(size="lg").classes("w-full")
+        spinner.visible = False
         activity_log = ui.log(max_lines=500).classes("w-full h-80")
         results = ui.column().classes("w-full")
 
@@ -88,6 +90,7 @@ def index():
         async with generation_lock:
             last_submission = time.monotonic()
             generate_button.disable()
+            spinner.visible = True
             results.clear()
             activity_log.clear()
             status.set_text("Starting AMP execution...")
@@ -207,13 +210,14 @@ def index():
 
             finally:
                 generate_button.enable()
+                spinner.visible = False
 
     generate_button.on_click(generate_brd)
 
 
 def main():
     ui.run(
-        title="AI Business Analyst Assistant",
+        title="Market Research & BRD Generator",
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "8080")),
         dark=True,

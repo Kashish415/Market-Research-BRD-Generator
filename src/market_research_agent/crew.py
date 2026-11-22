@@ -1,9 +1,7 @@
 import os
-from typing import List
 from crewai import Agent, Crew, LLM, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -21,8 +19,8 @@ exa_mcp = ["https://mcp.exa.ai/mcp"]
 @CrewBase
 class MarketResearchAgent():
 
-    agents: List[BaseAgent]
-    tasks: List[Task]
+    agents: list[BaseAgent]
+    tasks: list[Task]
 
     # 2. provide path for config files
     agents_config = "config/agents.yaml"
@@ -47,7 +45,6 @@ class MarketResearchAgent():
                 max_iter=4
             )
 
-
     @agent
     def customer_insights_researcher(self) -> Agent:
             return Agent(
@@ -57,14 +54,12 @@ class MarketResearchAgent():
                 max_iter=4
             )
 
-
     @agent
     def business_requirements_analyst(self) -> Agent:
             return Agent(
                 config = self.agents_config['business_requirements_analyst'],
                 llm= llm
             )
-
 
     @agent
     def business_analyst(self) -> Agent:
@@ -73,8 +68,8 @@ class MarketResearchAgent():
                 llm= llm
             )
 
+
     # 4. define your tasks (maintaining the order)
-    ### EACH TASK NEEDS THE CONTEXT/OUTPUT OF ITS PRECEDING TASKS!
     @task
     def market_research_task(self) -> Task:
            return Task(
@@ -113,7 +108,6 @@ class MarketResearchAgent():
     
 
     # 5. Form the Crew
-
     @crew
     def crew(self) -> Crew:
             return Crew(

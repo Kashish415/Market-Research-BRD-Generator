@@ -1,16 +1,13 @@
 import httpx
 
-
 def _base_url(value: str) -> str:
     return value.strip().rstrip("/")
-
 
 def _headers(token: str) -> dict[str, str]:
     return {
         "Authorization": f"Bearer {token.strip()}",
         "Content-Type": "application/json",
     }
-
 
 def _response_error(response: httpx.Response) -> str:
     try:
@@ -25,7 +22,7 @@ def _response_error(response: httpx.Response) -> str:
 
     return f"AMP request failed ({response.status_code})."
 
-
+# Start an AMP execution
 async def start_execution(
     client: httpx.AsyncClient,
     api_url: str,
@@ -48,7 +45,8 @@ async def start_execution(
 
     return kickoff_id
 
-
+# Extract the final BRD Content
+# checks 4 different response format
 def extract_brd_text(status: dict) -> str:
     result_json = status.get("result_json")
     if isinstance(result_json, str) and result_json.strip():
@@ -70,7 +68,6 @@ def extract_brd_text(status: dict) -> str:
 
     raise RuntimeError("AMP completed the execution without returning BRD text.")
 
-
 async def get_status(
     client: httpx.AsyncClient,
     api_url: str,
@@ -86,7 +83,6 @@ async def get_status(
         raise RuntimeError(_response_error(response))
 
     return response.json()
-
 
 def normalize_execution_status(status: dict) -> str:
     value = status.get("state") or status.get("status")
@@ -105,7 +101,6 @@ def normalize_execution_status(status: dict) -> str:
         return "paused"
 
     return ""
-
 
 def progress_summary(status: dict) -> str:
     progress = status.get("progress")

@@ -1,34 +1,87 @@
 from datetime import datetime
 from pathlib import Path
 from docx import Document
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 
-def create_brd_docx(markdown_content: str, output_directory: Path | None = None) -> Path:
-    target_dir = output_directory or Path("outputs")
-    target_dir.mkdir(parents=True, exist_ok=True)
+def create_brd_docx(markdown: str, output_dir: Path | None = None) -> Path:
+    project_root = Path(__file__).resolve().parents[2]
+    template_path = project_root / "templates" / "BUSINESS REQUIREMENTS DOCUMENT.docx"
+    output_directory = output_dir or project_root / "outputs"
+    output_directory.mkdir(parents=True, exist_ok=True)
 
-    document = Document()
-    document.add_heading("Business Requirements Document", level=0)
+    if template_path.exists():
+        document = Document(template_path)
+        document._element.body.clear_content()
+    else:
+        document = Document()
 
-    for raw_line in markdown_content.splitlines():
-        line = raw_line.strip()
+    lines = markdown.splitlines()
+    i = 0
 
-        if not line or line.startswith("---") or line.startswith("|"):
+    while i < len(lines):
+        line = lines[i].strip()
+
+        if not line or line == "---" or line.startswith("```"):
+            i += 1
             continue
 
-        clean_text = line.replace("**", "").replace("`", "")
+        # Markdown tables
+        if line.startswith("|") and i + 1 < len(lines):
+            separator = lines[i + 1].strip().strip("|").split("|")
 
+            if all("-" in cell and set(cell.strip()) <= {"-", ":"} for cell in separator):
+                headers = [cell.strip().replace("**", "").replace("`", "") for cell in line.strip("|").split("|")]
+                table = document.add_table(rows=1, cols=len(headers))
+
+                for cell, value in zip(table.rows[0].cells, headers):
+                    cell.text = value
+                    cell.paragraphs[0].runs[0].bold = True
+
+                i += 2
+
+                while i < len(lines) and lines[i].strip().startswith("|"):
+                    values = [
+                        cell.strip().replace("**", "").replace("`", "")
+                        for cell in lines[i].strip().strip("|").split("|")
+                    ]
+
+                    for cell, value in zip(table.add_row().cells, values):
+                        cell.text = value
+
+                    i += 1
+
+                # Apply corporate light-grey border to table
+                borders = OxmlElement("w:tblBorders")
+                for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+                    border = OxmlElement(f"w:{edge}")
+                    border.set(qn("w:val"), "single")
+                    border.set(qn("w:sz"), "6")
+                    border.set(qn("w:color"), "C4C7C5")
+                    borders.append(border)
+
+                table._tbl.tblPr.append(borders)
+                continue
+
+        # Headings
         if line.startswith("#"):
-            heading_level = min(line.count("#"), 3)
-            document.add_heading(clean_text.lstrip("# "), level=heading_level)
+            level = min(len(line) - len(line.lstrip("#")), 3)
+            heading = line[level:].strip().replace("**", "").replace("`", "")
+            document.add_heading(heading, level=level)
 
-        elif line.startswith(("-", "*")):
-            document.add_paragraph(clean_text.lstrip("-* "), style="List Bullet")
+        # Bullet lists
+        elif line.startswith(("- ", "* ")):
+            document.add_paragraph(
+                "• " + line[2:].replace("**", "").replace("`", "")
+            )
 
+        # Regular paragraphs
         else:
-            document.add_paragraph(clean_text)
+            document.add_paragraph(line.replace("**", "").replace("`", ""))
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    file_path = target_dir / f"BRD_{timestamp}.docx"
+        i += 1
+
+    file_path = output_directory / f"BRD_{datetime.now():%Y%m%d_%H%M%S}.docx"
     document.save(file_path)
 
     return file_path

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 llm = LLM(
-    model="baidu/ernie-5.5-flash-preview:free",
+    model="google/gemini-2.0-flash-exp:free",
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ["OPENROUTER_API_KEY"],
     custom_openai=True,

@@ -73,7 +73,7 @@ flowchart TD
 
 - **Agent Orchestration:** CrewAI 
 - **Live Search:** Exa AI via Model Context Protocol (MCP)
-- **LLM:** OpenRouter (model = `baidu/ernie-5.5-flash-preview:free`)
+- **LLM:** OpenRouter (model = `meta-llama/llama-3.3-70b-instruct:free`)
 - **Frontend:** NiceGUI 
 - **Document Generation:** python-docx 
 - **Package Management:** uv

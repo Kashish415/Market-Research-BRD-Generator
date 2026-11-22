@@ -51,7 +51,7 @@ def create_brd_docx(markdown: str, output_dir: Path | None = None) -> Path:
 
                     i += 1
 
-                # Apply corporate light-grey border to table
+                # Apply light-grey border to table
                 borders = OxmlElement("w:tblBorders")
                 for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
                     border = OxmlElement(f"w:{edge}")

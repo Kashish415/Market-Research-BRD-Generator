@@ -9,11 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 EXAMPLE_BRIEF = (
-    "A B2B SaaS platform called 'TalentPulse' that automates candidate interview screening using specialized role-based AI voice interviewers. It evaluates candidates on coding, system design, and communication and generates structured scorecard reports for hiring teams."
+    "A mobile-first personal finance and micro-investing app called 'RupeeGrow' designed for salaried Gen-Z professionals in India. It automatically rounds up everyday UPI transactions to the nearest ₹10 or ₹50 and invests the spare change into diversified mutual funds and digital gold, solving the problem of low savings habits among young earners."
 )
 
 EXAMPLE_CONTEXT = (
-    "Target Market: US and India tech startups and mid-market IT companies. Key Competitors: Karat, ModernLoop, HackerRank. Focus: Lowering time-to-hire by 60 percent and eliminating recruiter bias."
+    "Target Market: Indian urban salaried youth aged 21-27. Key Competitors: Jar, Gullak, Spare8. Regulatory environment: SEBI mutual fund distributor guidelines, RBI account aggregator framework."
 )
 
 async def execute_crew_on_amp(brief: str, context: str) -> str:
@@ -129,6 +129,10 @@ def index():
                         icon="download",
                         on_click=lambda: ui.download.file(str(docx_file)),
                     ).props("color=positive size=lg").classes("py-2 px-6")
+
+                    # Preview
+                    with ui.expansion("Preview Generated BRD Content", icon="visibility").classes("w-full border rounded-lg mt-3"):
+                        ui.markdown(brd_markdown).classes("w-full p-4 bg-gray-50 dark:bg-gray-800 rounded")               
 
             except Exception as error:
                 status_text.set_text("Generation interrupted.")

@@ -1,121 +1,137 @@
-# Market Research Agent
+# Market Research & BRD Generator
 
-This project accepts a business idea and generates market research, competitor analysis, customer insights, requirements, and an editable Business Requirements Document.
+An autonomous multi-agent platform that takes any startup or business idea and performs complete market research, competitor intelligence, customer analysis, and generates a ready-to-use Business Requirements Document (BRD) exported as an editable Word document (.docx).
 
-## Architecture
+**Live:** [https://market-research-agent-crewai.onrender.com](https://market-research-agent-crewai.onrender.com)
 
-The project uses two deployments:
+---
 
-1. CrewAI AMP runs the existing Crew and stores execution history and traces.
-2. A public NiceGUI application provides the website for entering a project brief and downloading the BRD.
+## Why I Built This
 
-The NiceGUI server calls AMP through its REST API. It does not start a second copy of the Crew.
+Drafting a proper Business Requirements Document (BRD) takes hours of manual work:
+- Researching market size and industry trends
+- Finding direct and indirect competitors, their features and pricing
+- Understanding customer pain points
+- Converting all that research into structured, testable functional and non-functional requirements
 
-## Crew workflow
+AI chatbots usually hallucinate figures/citations or give generic bullet points. I built this project to solve that by using **a crew of 5 specialized agents** with strict research limits and evidence-based reporting.
 
-The Crew has five agents:
+---
 
-1. Market Research Specialist
-2. Competitive Intelligence Analyst
-3. Customer Insights Researcher
-4. Business Requirements Analyst
-5. Senior Business Analyst and BRD Specialist
+## Architecture & How It Works
 
-The first three research tasks run asynchronously. The requirements task runs synchronously after those reports. The final BRD task runs synchronously after the requirements task. The Crew process is sequential.
+The project is split into two parts:
+1. **Frontend (Deployed on Render):** A clean Python web app built with NiceGUI. It handles user inputs, polls agent progress and builds the downloadable `.docx` file.
+2. **Multi-Agent Engine (CrewAI AMP):** Runs the 5-agent crew. Also connected to AMP dashboard for tracing and monitoring.
 
-The first three agents use Exa MCP. OpenRouter supplies the configured LLM. Agent roles and task instructions remain in:
+```mermaid
+flowchart TD
+    User([User Brief Input]) --> WebApp[NiceGUI Web App on Render]
+    WebApp -->|POST /kickoff| AMP[CrewAI AMP Cloud Engine]
 
-- `src/market_research_agent/config/agents.yaml`
-- `src/market_research_agent/config/tasks.yaml`
+    subgraph ResearchPhase [Parallel Research Phase via Exa MCP]
+        A1[1. Market Research Specialist]
+        A2[2. Competitive Intelligence Analyst]
+        A3[3. Customer Insights Researcher]
+    end
 
-## BRD download
+    AMP --> ResearchPhase
+    ResearchPhase --> A4[4. Business Requirements Analyst]
+    A4 --> A5[5. Senior BA & BRD Specialist]
 
-When AMP finishes an execution, NiceGUI reads the completed result and creates a DOCX with `brd_docx_generator.py`. The generator uses `templates/BUSINESS REQUIREMENTS DOCUMENT.docx` and creates a unique file for each run.
+    A5 -->|Markdown BRD Output| DocGen[DOCX Generator Engine]
+    DocGen --> Output([Downloadable Word Document .docx])
+```
 
-The generated DOCX is downloaded by the browser. The file is not downloaded from an AMP container.
+---
 
-## Local setup
+## The 5 Specialized Agents
 
-Requirements:
+1. **Market Research Specialist**
+   - Conducts focused market sizing using live Exa web searches.
+   - Identifies industry trends, regulatory considerations and growth drivers.
 
+2. **Competitive Intelligence Analyst**
+   - Discovers direct and indirect competitors.
+   - Evaluates competitor offerings, pricing models and market positioning gaps.
+
+3. **Customer Insights Researcher**
+   - Researches target customer segments, pain points and current alternatives.
+   - Analyzes adoption barriers and willingness to pay based on public customer feedback.
+
+4. **Business Requirements Analyst**
+   - Synthesizes findings from the first 3 research reports with the user's initial brief.
+   - Breaks requirements into Functional (`BRD-F`) and Non-Functional (`BRD-NF`) with priority ratings (Must/Should/Could Have).
+
+5. **Senior Business Analyst & BRD Specialist**
+   - Compiles everything into a formal 8-section Business Requirements Document.
+   - Includes Document Control, Scope boundaries, Traceability Matrix and Sign-off criteria.
+
+---
+
+## Tech Stack
+
+- **Agent Orchestration:** CrewAI 
+- **Live Search:** Exa AI via Model Context Protocol (MCP)
+- **LLM:** OpenRouter (model = `baidu/ernie-5.5-flash-preview:free`)
+- **Frontend:** NiceGUI 
+- **Document Generation:** python-docx 
+- **Package Management:** uv
+- **Deployment:** Render
+
+---
+
+## Key Features
+
+- **Parallel Research:** The first 3 research tasks run simultaneously to keep generation time between 2 to 3 minutes.
+- **Evidence-Based Outputs:** Prompts strictly instruct agents to distinguish verified facts from assumptions and include source URLs.
+- **Editable Word Export:** The app formats the output into a styled Word document with custom tables and typography.
+- **One-Click Example:** Includes a "Try Example Prompt" button so anyone testing the site can run a pre-filled business scenario instantly.
+
+---
+
+## Local Setup
+
+### Prerequisites
 - Python 3.10 to 3.13
-- `uv`
+- [uv](https://docs.astral.sh/uv/) installed
 
-Install dependencies:
+### Steps
 
-```bash
-uv sync
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Kashish415/Market-Research-BRD-Generator.git
+   cd Market-Research-BRD-Generator
+   ```
 
-Local environment variables:
+2. Install dependencies:
+   ```bash
+   uv sync
+   ```
 
-- `AMP_API_URL`: Public AMP API base URL
-- `AMP_BEARER_TOKEN`: Deployment bearer token
-- `PORT`: Optional frontend port, default `8080`
-- `HOST`: Optional frontend host, default `0.0.0.0`
+3. Create a `.env` file in the root directory:
+   ```env
+   OPENROUTER_API_KEY=your_openrouter_api_key
+   AMP_API_URL=your_crewai_amp_url
+   AMP_BEARER_TOKEN=your_amp_bearer_token
+   ```
 
-Keep secrets in platform environment settings or set them in your terminal environment locally. Do not commit `.env` or API keys.
+4. Run the web UI:
+   ```bash
+   uv run python -m market_research_agent.app
+   ```
 
-Start the frontend:
+5. Open your browser at `http://localhost:8080`.
 
-```bash
-uv run market_research_ui
-```
+---
 
-Open `http://localhost:8080`.
+## Limitations & Future Scope
 
-## CrewAI AMP deployment
+### Limitations
+- **Generation Time:** Real-time web crawling and synthesis across 5 agents takes about 2 to 3 minutes per run.
+- **Model Quota:** Currently configured with free OpenRouter models for demonstration, which have public rate limits.
 
-1. Push the project to a GitHub repository.
-2. In CrewAI AMP, choose **Deploy from Code**.
-3. Select the repository and `feat/upgrade_brd` branch.
-4. Configure `OPENROUTER_API_KEY` in the AMP deployment environment.
-5. Deploy the Crew.
-6. Copy the public AMP API URL and deployment bearer token.
+### Future Scope
+- **Asynchronous Email Delivery via MCP:** Since deep market research takes 2-3 minutes, the next big step can be to integrate an Email MCP server to automatically mail the generated BRD report to the user upon completion.
 
-The AMP deployment runs `src/market_research_agent/main.py` and `crew.py`. It does not run the NiceGUI application.
-
-## Public NiceGUI deployment
-
-Deploy this repository separately on a public Python hosting service that supports environment variables and WebSocket connections.
-
-Set these values on the frontend service:
-
-- `AMP_API_URL`
-- `AMP_BEARER_TOKEN`
-- `PORT`, if required by the hosting service
-
-Use this start command:
-
-```bash
-uv run market_research_ui
-```
-
-The AMP bearer token remains on the NiceGUI server and is not sent to browser code or rendered in the page.
-
-## API behaviour
-
-NiceGUI sends a bearer-authenticated `POST /kickoff` request with:
-
-```json
-{
-  "inputs": {
-    "project_brief": "Business idea",
-    "additional_context": "Optional context"
-  }
-}
-```
-
-It receives a `kickoff_id`, polls `GET /status/{kickoff_id}`, and stops when AMP reports `completed`, `error`, or `revoked`. Running executions are shown with `running` and available task progress. The frontend also accepts the newer `state` response format for compatibility. It does not show fabricated agent-level progress. The AMP `/progress` and task fields are used when they are available.
-
-## Template and outputs
-
-The DOCX template must remain at:
-
-- `templates/BUSINESS REQUIREMENTS DOCUMENT.docx`
-
-Generated files are stored under `outputs/` using a unique directory and filename for each run.
-
-## Public submission limits
-
-Public submissions are limited to two concurrent runs and a 60-second cooldown for each open page.
+- **Model Upgrades:** Support higher-tier reasoning models (e.g., Claude 3.5 Sonnet / GPT-4o) for deeper quantitative and qualitative research.

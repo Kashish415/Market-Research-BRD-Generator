@@ -1,229 +1,153 @@
-import asyncio
 import os
-import time
+import asyncio
 from pathlib import Path
-from uuid import uuid4
-
 import httpx
 from nicegui import ui
-
-from market_research_agent.amp_api import (
-    extract_brd_text,
-    get_status,
-    normalize_execution_status,
-    progress_summary,
-    start_execution,
-)
 from market_research_agent.brd_docx_generator import create_brd_docx
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 load_dotenv()
 
-generation_semaphore = asyncio.Semaphore(2)
+EXAMPLE_BRIEF = (
+    "A B2B SaaS platform called 'TalentPulse' that automates candidate interview screening using specialized role-based AI voice interviewers. It evaluates candidates on coding, system design, and communication and generates structured scorecard reports for hiring teams."
+)
 
+EXAMPLE_CONTEXT = (
+    "Target Market: US and India tech startups and mid-market IT companies. Key Competitors: Karat, ModernLoop, HackerRank. Focus: Lowering time-to-hire by 60 percent and eliminating recruiter bias."
+)
+
+async def execute_crew_on_amp(brief: str, context: str) -> str:
+    # Sends the inputs to CrewAI AMP and polls until execution completes.
+    api_url = os.getenv("AMP_API_URL", "").strip().rstrip("/")
+    token = os.getenv("AMP_BEARER_TOKEN", "").strip()
+
+    if not api_url or not token:
+        raise ValueError("AMP credentials not set in environment.")
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        # 1. Trigger Kickoff
+        kickoff_res = await client.post(
+            f"{api_url}/kickoff",
+            headers=headers,
+            json={"inputs": {"project_brief": brief, "additional_context": context}},
+        )
+        kickoff_res.raise_for_status()
+        kickoff_id = kickoff_res.json().get("kickoff_id")
+
+        if not kickoff_id:
+            raise ValueError("No kickoff_id returned by AMP.")
+
+        # 2. Poll Status every 4 seconds until done (approx 2-3 minutes)
+        while True:
+            await asyncio.sleep(4)
+            status_res = await client.get(f"{api_url}/status/{kickoff_id}", headers=headers)
+            status_res.raise_for_status()
+            data = status_res.json()
+
+            state = (data.get("state") or data.get("status") or "").lower()
+
+            if state in {"completed", "success"}:
+                result = data.get("result") or data.get("result_json")
+                if isinstance(result, dict):
+                    return result.get("output", "")
+                return str(result or "")
+
+            if state in {"failed", "error", "revoked"}:
+                raise RuntimeError("The Crew execution failed on AMP.")
 
 @ui.page("/")
 def index():
     ui.page_title("Market Research & BRD Generator")
 
-    with ui.column().classes("w-full max-w-5xl mx-auto p-6"):
-        ui.label("Market Research & BRD Generator").classes("text-3xl font-bold")
-        ui.label("Market research, competitor intelligence and BRD generation.").classes("text-gray-500")
+    with ui.column().classes("w-full max-w-4xl mx-auto p-8 gap-6"):
 
-        with ui.card().classes("w-full"):
-            ui.label("Project Overview").classes("text-xl font-semibold")
+        # Header
+        with ui.column().classes("gap-1"):
+            ui.label("Market Research & BRD Generator").classes("text-3xl font-bold")
+            ui.label("Multi-agent system for real-time market analysis and BRD generation.").classes("text-gray-500 text-sm")
 
-            project_brief = ui.textarea(
-                label="Project Brief *",
-                placeholder=(
-                    "Describe your business idea, the problem it solves, "
-                    "target users, objectives and proposed solution..."
-                ),
-            ).classes("w-full").props("rows=8")
+        # Input Card
+        with ui.card().classes("w-full p-6 gap-4"):
+            with ui.row().classes("w-full items-center justify-between"):
+                ui.label("Project Details").classes("text-lg font-semibold")
 
-            additional_context = ui.textarea(
+                def fill_sample():
+                    brief_input.value = EXAMPLE_BRIEF
+                    context_input.value = EXAMPLE_CONTEXT
+                    ui.notify("Sample project idea loaded into fields.", type="info")
+
+                ui.button("Try Example Idea", icon="lightbulb", on_click=fill_sample).props("flat dense color=primary")
+
+            brief_input = ui.textarea(
+                label="Business Idea & Problem Statement *",
+                placeholder="Describe what your product solves, who the customers are, and the proposed solution...",
+            ).classes("w-full").props("outlined rows=5")
+
+            context_input = ui.textarea(
                 label="Additional Context (Optional)",
-                placeholder=(
-                    "Add extra details such as industry, geography, "
-                    "features, constraints or preferences..."
-                ),
-            ).classes("w-full").props("rows=4")
+                placeholder="Target geography, known competitors, pricing models, constraints...",
+            ).classes("w-full").props("outlined rows=3")
 
-        generate_button = ui.button("Generate BRD", icon="description").classes("w-full")
-        status = ui.label()
-        spinner = ui.spinner(size="lg").classes("w-full")
+            submit_btn = ui.button("Generate BRD", icon="auto_mode").classes("w-full py-3 text-base")
+
+        # Feedback & Download Section
+        spinner = ui.spinner(size="lg").classes("self-center")
         spinner.visible = False
-        activity_log = ui.log(max_lines=500).classes("w-full h-80")
-        results = ui.column().classes("w-full")
 
-    generation_lock = asyncio.Lock()
-    last_submission = 0.0
+        status_text = ui.label("").classes("text-center w-full text-gray-600 font-medium")
+        download_box = ui.column().classes("w-full items-center")
 
-    async def generate_brd():
-        nonlocal last_submission
+        async def handle_generate():
+            brief = (brief_input.value or "").strip()
+            context = (context_input.value or "").strip()
 
-        current_time = time.monotonic()
-        if current_time - last_submission < 60:
-            remaining = 60 - (current_time - last_submission)
-            ui.notify(f"Please wait {remaining:.0f} seconds before submitting again.", type="warning")
-            return
-
-        brief = (project_brief.value or "").strip()
-        context = (additional_context.value or "").strip()
-
-        if not brief:
-            ui.notify("Please enter your project brief.", type="warning")
-            return
-
-        if len(brief) > 20_000:
-            ui.notify("Please keep the project brief under 20,000 characters.", type="warning")
-            return
-
-        if len(context) > 10_000:
-            ui.notify("Please keep additional context under 10,000 characters.", type="warning")
-            return
-
-        if generation_lock.locked():
-            ui.notify("A BRD generation is already running.", type="warning")
-            return
-
-        async with generation_lock:
-            last_submission = time.monotonic()
-            generate_button.disable()
-            spinner.visible = True
-            results.clear()
-            activity_log.clear()
-            status.set_text("Starting AMP execution...")
-
-            api_url = os.getenv("AMP_API_URL", "").strip()
-            bearer_token = os.getenv("AMP_BEARER_TOKEN", "").strip()
-
-            if not api_url or not bearer_token:
-                status.set_text("AMP configuration is missing.")
-                activity_log.push("Configure AMP_API_URL and AMP_BEARER_TOKEN on the frontend server.")
-                ui.notify("AMP configuration is missing.", type="negative")
-                generate_button.enable()
+            if not brief:
+                ui.notify("Please enter a business idea before proceeding.", type="warning")
                 return
 
+            submit_btn.disable()
+            spinner.visible = True
+            download_box.clear()
+            status_text.set_text("Agents are researching market, competitors, and customer data... (Takes 2-3 mins)")
+
             try:
-                async with generation_semaphore:
-                    async with httpx.AsyncClient(
-                        timeout=httpx.Timeout(30.0),
-                        follow_redirects=True,
-                    ) as client:
-                        kickoff_id = await start_execution(
-                            client,
-                            api_url,
-                            bearer_token,
-                            {
-                                "project_brief": brief,
-                                "additional_context": context,
-                            },
-                        )
+                brd_markdown = await execute_crew_on_amp(brief, context)
 
-                        activity_log.push(f"AMP execution started | {kickoff_id}")
-                        status.set_text("AMP execution running...")
+                status_text.set_text("Generating your document...")
+                docx_file = create_brd_docx(brd_markdown)
 
-                        deadline = time.monotonic() + 900
-                        last_activity = ""
+                status_text.set_text("Your Business Requirements Document is ready for download!")
 
-                        while True:
-                            result_status = await get_status(
-                                client,
-                                api_url,
-                                bearer_token,
-                                kickoff_id,
-                            )
-
-                            state = normalize_execution_status(result_status)
-
-                            if state == "completed":
-                                break
-
-                            if state == "failed":
-                                error = result_status.get("error") or result_status.get("status")
-                                if error:
-                                    raise RuntimeError(f"AMP execution failed: {error}")
-                                raise RuntimeError("AMP execution failed.")
-
-                            if state == "paused":
-                                raise RuntimeError("AMP execution is paused and is waiting for human input.")
-
-                            if state != "running":
-                                raise RuntimeError("AMP returned an unknown execution state.")
-
-                            progress = progress_summary(result_status)
-                            activity = "RUNNING"
-                            if progress:
-                                activity += f" | {progress}"
-
-                            if activity != last_activity:
-                                status.set_text(f"AMP execution | {activity}")
-                                activity_log.push(activity)
-                                last_activity = activity
-
-                            if time.monotonic() >= deadline:
-                                raise TimeoutError("AMP execution timed out.")
-
-                            await asyncio.sleep(5)
-
-                brd_text = extract_brd_text(result_status)
-
-                output_dir = Path("outputs") / uuid4().hex
-                docx_path = create_brd_docx(brd_text, output_dir=output_dir)
-
-                status.set_text("BRD generation completed.")
-                activity_log.push("BRD content received.")
-                activity_log.push("Editable DOCX generated.")
-
-                with results:
-                    with ui.card().classes("w-full"):
-                        ui.label("Your Business Requirements Document").classes("text-xl font-semibold")
-                        ui.button(
-                            "Download Editable DOCX",
-                            icon="download",
-                            on_click=lambda: ui.download.file(
-                                str(docx_path),
-                                filename=docx_path.name,
-                                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                            ),
-                        )
-                        with ui.expansion("Final BRD Preview"):
-                            ui.markdown(brd_text)
-
-                ui.notify("BRD generated successfully.", type="positive")
-
-            except TimeoutError:
-                status.set_text("AMP execution timed out.")
-                activity_log.push("Execution timed out. Check the AMP Executions and Traces pages.")
-                ui.notify("The AMP execution timed out.", type="negative")
-
-            except httpx.HTTPError:
-                status.set_text("Could not reach CrewAI AMP.")
-                activity_log.push("AMP request failed. Check the frontend server network and AMP credentials.")
-                ui.notify("Could not reach CrewAI AMP.", type="negative")
+                with download_box:
+                    ui.button(
+                        "Download Business Requirements Document (.docx)",
+                        icon="download",
+                        on_click=lambda: ui.download.file(str(docx_file)),
+                    ).props("color=positive size=lg").classes("py-2 px-6")
 
             except Exception as error:
-                status.set_text("BRD generation failed.")
-                activity_log.push(f"ERROR: {error}")
-                ui.notify(str(error), type="negative")
+                status_text.set_text("Generation interrupted.")
+                ui.notify(f"Error: {error}", type="negative")
 
             finally:
-                generate_button.enable()
                 spinner.visible = False
+                submit_btn.enable()
 
-    generate_button.on_click(generate_brd)
-
+        submit_btn.on_click(handle_generate)
 
 def main():
     ui.run(
         title="Market Research & BRD Generator",
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "8080")),
-        dark=True,
+        dark=False,
         reload=False,
     )
-
 
 if __name__ == "__main__":
     main()

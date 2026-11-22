@@ -1,94 +1,34 @@
 from datetime import datetime
 from pathlib import Path
-from uuid import uuid4
 from docx import Document
-from docx.oxml import OxmlElement
-from docx.oxml.ns import qn
 
-def create_brd_docx(markdown: str, output_dir: Path | None = None) -> Path:
-    project_root = Path(__file__).resolve().parents[2]
-    template_path = project_root / "templates" / "BUSINESS REQUIREMENTS DOCUMENT.docx"
-    output_dir = output_dir or project_root / "outputs"
+def create_brd_docx(markdown_content: str, output_directory: Path | None = None) -> Path:
+    target_dir = output_directory or Path("outputs")
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-    if not template_path.exists():
-        raise FileNotFoundError(f"BRD template not found: {template_path}")
+    document = Document()
+    document.add_heading("Business Requirements Document", level=0)
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    for raw_line in markdown_content.splitlines():
+        line = raw_line.strip()
 
-    document = Document(template_path)
-    document._element.body.clear_content()  # Keep page layout; remove sample content.
-
-    lines = markdown.splitlines()
-    i = 0
-
-    while i < len(lines):
-        line = lines[i].strip()
-
-        if not line or line == "---" or line.startswith("```"):
-            i += 1
+        if not line or line.startswith("---") or line.startswith("|"):
             continue
 
-        # Markdown tables
-        if line.startswith("|") and i + 1 < len(lines):
-            separator = lines[i + 1].strip().strip("|").split("|")
+        clean_text = line.replace("**", "").replace("`", "")
 
-            if all("-" in cell and set(cell.strip()) <= {"-", ":"} for cell in separator):
-                headers = [cell.strip() for cell in line.strip("|").split("|")]
-                table = document.add_table(rows=1, cols=len(headers))
-
-                for cell, value in zip(table.rows[0].cells, headers):
-                    cell.text = value.replace("**", "").replace("`", "")
-                    cell.paragraphs[0].runs[0].bold = True
-
-                i += 2
-
-                while i < len(lines) and lines[i].strip().startswith("|"):
-                    values = [
-                        cell.strip()
-                        for cell in lines[i].strip().strip("|").split("|")
-                    ]
-
-                    for cell, value in zip(table.add_row().cells, values):
-                        cell.text = value.replace("**", "").replace("`", "")
-
-                    i += 1
-
-                # Apply the same light-grey borders as the supplied template.
-                borders = OxmlElement("w:tblBorders")
-
-                for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
-                    border = OxmlElement(f"w:{edge}")
-                    border.set(qn("w:val"), "single")
-                    border.set(qn("w:sz"), "6")
-                    border.set(qn("w:color"), "C4C7C5")
-                    borders.append(border)
-
-                table._tbl.tblPr.append(borders)
-                continue
-
-        # Headings
         if line.startswith("#"):
-            level = min(len(line) - len(line.lstrip("#")), 3)
-            heading = line[level:].strip().replace("**", "").replace("`", "")
-            document.add_heading(heading, level=level)
+            heading_level = min(line.count("#"), 3)
+            document.add_heading(clean_text.lstrip("# "), level=heading_level)
 
-        # Bullet lists
-        elif line.startswith(("- ", "* ")):
-            document.add_paragraph(
-                "• " + line[2:].replace("**", "").replace("`", "")
-            )
+        elif line.startswith(("-", "*")):
+            document.add_paragraph(clean_text.lstrip("-* "), style="List Bullet")
 
-        # Regular paragraphs and numbered items
         else:
-            document.add_paragraph(
-                line.replace("**", "").replace("`", "")
-            )
+            document.add_paragraph(clean_text)
 
-        i += 1
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    file_path = target_dir / f"BRD_{timestamp}.docx"
+    document.save(file_path)
 
-    output_path = output_dir / (
-        f"BRD_{datetime.now():%Y%m%d_%H%M%S}_{uuid4().hex}.docx"
-    )
-    document.save(output_path)
-
-    return output_path
+    return file_path

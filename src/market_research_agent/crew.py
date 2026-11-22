@@ -3,6 +3,7 @@ from crewai import Agent, Crew, LLM, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from dotenv import load_dotenv
+
 load_dotenv()
 
 llm = LLM(
@@ -105,7 +106,6 @@ class MarketResearchAgent():
                         self.business_requirements_task()
                 ],
             )
-    
 
     # 5. Form the Crew
     @crew
@@ -116,5 +116,3 @@ class MarketResearchAgent():
                     process = Process.sequential,
                     tracing = True,
             )
-    
-

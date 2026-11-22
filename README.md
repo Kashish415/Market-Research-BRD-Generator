@@ -87,6 +87,7 @@ flowchart TD
 - **Evidence-Based Outputs:** Prompts strictly instruct agents to distinguish verified facts from assumptions and include source URLs.
 - **Editable Word Export:** The app formats the output into a styled Word document with custom tables and typography.
 - **One-Click Example:** Includes a "Try Example Prompt" button so anyone testing the site can run a pre-filled business scenario instantly.
+- **Live Markdown Preview:** Includes an interactive collapsible preview directly in the web UI so users can inspect the complete research report before downloading the Word document.
 
 ---
 
